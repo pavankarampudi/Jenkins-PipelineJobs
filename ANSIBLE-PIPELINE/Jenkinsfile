@@ -1,0 +1,31 @@
+pipeline{
+    agent any
+    stages {
+        stage('Create Google Instance') {
+            steps {
+                sh '''NODESTAT=$(gcloud compute instances list | grep testnode &>/dev/null || echo NO)
+if [ "$NODESTAT" = NO ]; then 
+    echo "Node does not exist"
+else
+	gcloud compute instances delete testnode --zone=us-east1-b --quiet
+fi
+gcloud compute instances create testnode --image=mycentos7  --zone=us-east1-b
+echo testnode >/tmp/inventory'''
+
+            }
+        }
+
+        stage('Run Ansible Playbook') {
+            steps {
+                git 'https://github.com/cit-agnitio/ansible-playbooks-testing.git'
+                sh 'ansible-playbook -i /tmp/inventory single-node-stack.yml'
+            }
+        }
+
+        stage('Delete Google Instance') {
+            steps{
+                sh 'gcloud compute instances delete testnode   --zone=us-east1-b --quiet'
+            }
+        }
+    }
+}
