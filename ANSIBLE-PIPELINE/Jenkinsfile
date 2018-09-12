@@ -17,8 +17,7 @@ echo testnode >/tmp/inventory'''
 
         stage('Run Ansible Playbook') {
             steps {
-                git 'https://github.com/cit-agnitio/ansible-playbooks-testing.git'
-                sh 'ansible-playbook -i /tmp/inventory single-node-stack.yml'
+               sh 'echo "Hello"'
             }
         }
 
